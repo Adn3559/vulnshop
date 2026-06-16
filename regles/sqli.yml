@@ -1,0 +1,11 @@
+rules:
+  - id: vulnshop-sql-injection-template-string
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >
+      Injection SQL probable : une variable est interpolée dans une chaîne SQL.
+      Utilise une requête PARAMÉTRÉE : db("... WHERE x = ?", [valeur]).
+    metadata:
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 - Injection"
+    pattern-regex: 'SELECT.*\$\{'
