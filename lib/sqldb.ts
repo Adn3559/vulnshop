@@ -16,9 +16,9 @@ export function getDb() {
 
 // ✅ mots de passe HACHÉS (bcrypt). Plus jamais de clair en base.
 // (remplace les hash ci-dessous par CEUX que ton script a affichés)
-    alasql("INSERT INTO users VALUES (1,'alice@vulnshop.test','$2b$10$aFLgzGRYyUCRuHuc.qA1Ee9bqDIcoCk2YdSGK8DlyK2DbbMicSfMG','user')");
+    alasql("INSERT INTO users VALUES (1,'alice@vulnshop.test','$2b$10$aFLgzGRYyUCRuHuc.qA1Ee9bqDIcoCk2YdSGK8DlyK2DbbMicSfMG','user')"); // nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash -- hash de test, labo pédagogique
     alasql("INSERT INTO users VALUES (2,'bob@vulnshop.test','$2b$10$Lnx.stdnkJvb2pi8Nj/P.v0KIsDwZOjR6maAddPz6oLwNxvDmMq2','user')");
-    alasql("INSERT INTO users VALUES (3,'admin@vulnshop.test','$2b$10$IbEazz35VJDKWISFpWyLV.XHyoCFqRK9XqCg4uWvjNwIqdCaPQc.K','admin')");
+    alasql("INSERT INTO users VALUES (3,'admin@vulnshop.test','$2b$10$IbEazz35VJDKWISFpWyLV.XHyoCFqRK9XqCg4uWvjNwIqdCaPQc.K','admin')"); // nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash -- hash de test, labo pédagogique
 
     alasql("INSERT INTO orders VALUES (1,1,'Clavier mécanique',89)");
     alasql("INSERT INTO orders VALUES (2,2,'Casque audio',149)");

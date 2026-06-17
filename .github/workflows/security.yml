@@ -1,0 +1,51 @@
+# .github/workflows/security.yml
+# Pipeline de sécurité : tourne à chaque push et chaque pull request.
+# Si une étape échoue (code de sortie ≠ 0), le job devient ROUGE et bloque le merge.
+name: Sécurité
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Droits minimaux (principe du moindre privilège) : lecture seule du code.
+permissions:
+  contents: read
+
+jobs:
+  # ── Job 1 : lint + audit des dépendances ──────────────────────────────
+  lint-et-audit:
+    name: ESLint + npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances (verrouillées)
+        run: npm ci
+
+      - name: Linter (ESLint security)
+        run: npx eslint .
+
+      - name: Auditer les dépendances (échoue si faille >= high)
+        run: npm audit --audit-level=high
+
+  # ── Job 2 : SAST avec Semgrep (auto + notre règle maison) ─────────────
+  semgrep:
+    name: Semgrep (SAST)
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Scanner (règles auto + règle maison sqli)
+        run: semgrep scan --config auto --config regles/sqli.yml --error

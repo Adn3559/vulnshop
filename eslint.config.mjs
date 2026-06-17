@@ -1,5 +1,4 @@
 // eslint.config.mjs — config d'audit sécurité (ESLint 9 flat config)
-import js from "@eslint/js";
 import security from "eslint-plugin-security";
 import react from "eslint-plugin-react";
 import tseslint from "typescript-eslint";
