@@ -10,4 +10,5 @@ export const users: User[] = [
 
 export const comments: Comment[] = [
   { id: 1, author: "Alice", html: "Super boutique !" },
+  { id: 2, author: "Pirate", html: "<img src=x onerror=alert('XSS stocké')>" },
 ];

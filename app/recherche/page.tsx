@@ -1,4 +1,4 @@
-// app/recherche/page.tsx — ⚠️ XSS RÉFLÉCHI : on réaffiche "q" sans le nettoyer — labo
+// app/recherche/page.tsx — ✅ XSS réfléchi corrigé : React échappe {q}
 export default async function RecherchePage({
   searchParams,
 }: {
@@ -9,8 +9,8 @@ export default async function RecherchePage({
   return (
     <main style={{ padding: 24 }}>
       <h1>Recherche</h1>
-      {/* ⚠️ FAILLE : le texte de l'URL est injecté en HTML BRUT */}
-      <p dangerouslySetInnerHTML={{ __html: `Résultats pour : ${q}` }} />
+      {/* ✅ affichage ÉCHAPPÉ : le contenu de l'URL est du TEXTE, jamais du HTML */}
+      <p>Résultats pour : {q}</p>
     </main>
   );
 }

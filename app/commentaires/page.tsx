@@ -1,4 +1,4 @@
-// app/commentaires/page.tsx — ⚠️ CODE VOLONTAIREMENT VULNÉRABLE (labo)
+// app/commentaires/page.tsx — ✅ XSS stocké corrigé : React échappe {c.html}
 import { comments } from "@/lib/db";
 
 export default function CommentairesPage() {
@@ -8,8 +8,8 @@ export default function CommentairesPage() {
       {comments.map((c) => (
         <div key={c.id}>
           <b>{c.author} :</b>{" "}
-          {/* ⚠️ on injecte du HTML brut venu d'un utilisateur */}
-          <span dangerouslySetInnerHTML={{ __html: c.html }} />
+          {/* ✅ affiché comme TEXTE : le <img onerror> n'est plus exécuté */}
+          <span>{c.html}</span>
         </div>
       ))}
     </main>
