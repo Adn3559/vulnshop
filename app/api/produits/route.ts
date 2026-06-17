@@ -8,9 +8,9 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") ?? "";
   const db = getDb();
 
-  // ✅ le texte de recherche est passé comme DONNÉE (paramètre ?), jamais collé dans le SQL
-  const motif = `%${q}%`;
-  const rows = db("SELECT id, nom, prix FROM produits WHERE nom LIKE ?", [motif]);
+  // ⚠️ FAILLE RÉINTRODUITE VOLONTAIREMENT — pour tester le garde-fou CI
+  const sql = `SELECT id, nom, prix FROM produits WHERE nom LIKE '%${q}%'`;
+  const rows = db(sql);
 
   return NextResponse.json({ resultats: rows });
 }
