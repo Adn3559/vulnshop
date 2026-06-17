@@ -62,6 +62,23 @@ Application de **9 correctifs**, chacun validé par la méthode AVANT/APRÈS pui
 
 > En production, plusieurs de ces parades se délègueraient à la plateforme : Row Level Security côté base de données pour le contrôle d'accès, un store partagé (Redis/Upstash) pour le rate limiting, HTTPS systématique via l'hébergeur.
 
+### Jour 3 (après-midi) — Rendre la sécurité durable (CI/CD + durcissement)
+
+Les correctifs du matin sont transformés en garde-fous automatiques, pour qu'une régression ne puisse plus revenir sur `main` sans qu'une machine la bloque :
+
+| Brique | Détail |
+|---|---|
+| Secrets propres | `.env.local` (réel, ignoré) séparé d'un `.env.example` (modèle, commité) ; `.gitignore` corrigé pour exempter `.env.example` |
+| Pipeline CI bloquant | `.github/workflows/security.yml` — deux jobs en parallèle à chaque `push`/`pull_request` : **ESLint + npm audit** et **Semgrep (SAST)** (règle maison `regles/sqli.yml`). Un code de sortie ≠ 0 rend le job rouge |
+| Branch protection | `main` exige les deux checks de sécurité au vert avant tout merge, y compris pour le mainteneur du dépôt (push direct refusé, passage obligé par une PR) |
+| Démo de blocage | Réintroduction volontaire d'une injection SQL sur une branche jetable → PR ouverte → check Semgrep rouge → merge grisé. Faille jamais arrivée sur `main`, branche nettoyée ensuite |
+| En-têtes de sécurité | `next.config.ts` (`async headers()`) : `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Strict-Transport-Security` — defense in depth, sans toucher au code applicatif |
+| Dependabot | `.github/dependabot.yml` — veille hebdomadaire sur les dépendances npm et les actions GitHub utilisées dans les workflows |
+
+**Leçon retenue :** la sécurité n'est pas un état (« c'est corrigé ») mais un processus que la machine fait respecter en continu (*shift left*). Dependabot **propose** les mises à jour, la CI **vérifie** qu'elles ne cassent rien, la branch protection **empêche** toute régression de passer.
+
+> ➡️ Prochaine étape (Jour 4) : ajouter un DAST automatisé (OWASP ZAP) au pipeline, pour attaquer l'application pendant la CI et couvrir les trois familles SAST + DAST + SCA.
+
 ---
 
 ## 🧠 Ce que ce projet illustre
@@ -94,8 +111,13 @@ vulnshop/
 │   └── rate-limit.ts        → limiteur de tentatives en mémoire
 ├── regles/
 │   └── sqli.yml             → règle Semgrep maison (détection d'injection SQL)
-└── .github/workflows/
-    └── codeql.yml            → analyse CodeQL en CI
+├── next.config.ts           → en-têtes de sécurité HTTP (CSP, X-Frame-Options, HSTS...)
+├── .env.example              → modèle de configuration (commité, sans valeurs)
+└── .github/
+    ├── dependabot.yml        → veille hebdomadaire npm + github-actions
+    └── workflows/
+        ├── codeql.yml         → analyse CodeQL en CI
+        └── security.yml       → pipeline bloquant : ESLint + npm audit + Semgrep (SAST)
 ```
 
 ---
@@ -105,7 +127,8 @@ vulnshop/
 - [x] Jour 1 — Construction de l'application vulnérable + exploitation des failles
 - [x] Jour 2 — Audit automatique (npm audit, ESLint, Semgrep, CodeQL)
 - [x] Jour 3 (matin) — Correction des 9 failles
-- [ ] Jour 3 (après-midi) — Durcissement (en-têtes de sécurité) + pipeline CI/CD bloquant en cas de régression
+- [x] Jour 3 (après-midi) — Durcissement (en-têtes de sécurité) + pipeline CI/CD bloquant en cas de régression
+- [ ] Jour 4 — DAST automatisé (OWASP ZAP) en CI
 
 ---
 
